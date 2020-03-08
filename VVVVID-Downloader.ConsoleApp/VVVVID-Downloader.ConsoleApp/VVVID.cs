@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using VVVVID_Downloader.ConsoleApp.Hds;
+using static VVVVID_Downloader.ConsoleApp.HdsDump;
 
 namespace VVVVID_Downloader.ConsoleApp
 {
@@ -13,6 +15,15 @@ namespace VVVVID_Downloader.ConsoleApp
         private static CookieContainer _cookieContainer = new CookieContainer();
         private static String _connectionId;
         public Anime Anime;
+
+        private HdsDump _hds;
+        private TimeSpan _downloadedTS;
+        public TimeSpan DownloadedTS { get => _downloadedTS; private set { _downloadedTS = value; } }
+        private int _percentage;
+        public int Percentage { get => _percentage; private set { _percentage = value; } }
+        private DownloadStatus _downloadStatus;
+        public DownloadStatus DownloadStatus { get => _downloadStatus; private set { _downloadStatus = value; } }
+
         public VVVID()
         { _connectionId = GetConnectionId(); }
         private static string WebRequest(string url)
@@ -50,6 +61,13 @@ namespace VVVVID_Downloader.ConsoleApp
             string url = $"https://www.vvvvid.it/vvvvid/ondemand/{idAnime}/seasons/?conn_id={_connectionId}";
             string response = WebRequest(url);
             RootObject animeData = JsonConvert.DeserializeObject<RootObject>(response);
+
+            // questa chiamata è per avere più dettagli negli episodi per DownloadWithHDS(). controlla commit
+            url = $"http://www.vvvvid.it/vvvvid/ondemand/{idAnime}/season/{animeData.data[0].season_id}?conn_id={_connectionId}";   //QUesta chiamata mi da più dettagli per episodio
+            string response2 = WebRequest(url);
+            RootEpisodeObject rootEpisodeObject = JsonConvert.DeserializeObject<RootEpisodeObject>(response2);
+            animeData.data[0].episodes = rootEpisodeObject.data;
+
             return animeData;
         }
         public void Start(int episodioNumero)
@@ -57,7 +75,10 @@ namespace VVVVID_Downloader.ConsoleApp
             GetLinks(episodioNumero);
             foreach (Episode ep in Anime.episodes)
                 if (!String.IsNullOrEmpty(ep.videoLink) && ep.playable)
+                {
                     DownloadWithYoutubeDL(ep);
+                    DownloadWithHDS(ep);
+                }
         }
         private void GetLinks(int episodioNumero)
         {
@@ -115,6 +136,48 @@ namespace VVVVID_Downloader.ConsoleApp
             //Process process = new Process();
             //process.StartInfo = new ProcessStartInfo(Path.Combine(rootPath, fileName));
             //process.Start();
+        }
+        private void DownloadWithHDS(Episode ep)
+        {
+            string url = $"http://www.vvvvid.it/vvvvid/ondemand/{Anime.show_id}/season/{Anime.season_id}?conn_id={_connectionId}";
+            string response = WebRequest(url);
+            var dettaglioEpisodio = JsonConvert.DeserializeObject<Episode>(response);
+
+
+            string manifestLink = HdsTool.DecodeManifestLink(ep.embed_info);
+            string fileName = string.Format("{0}\\{0} {1} - {2}.flv", HdsTool.SanitizeFileName(Anime.title), ep.number, HdsTool.SanitizeFileName(ep.title));
+            _hds = new HdsDump(manifestLink, fileName);
+            _hds.DownloadedFragment += Hds_DownloadedFragment;
+            _hds.DownloadStatusChanged += Hds_DownloadStatusChanged;
+            DownloadStatus = _hds.Status;
+            if (_hds.Status == DownloadStatus.Paused)
+            {
+                var progress = _hds.GetProgressFromFile();
+                DownloadedTS = TimeSpan.FromMilliseconds(progress.Item1);
+                Percentage = progress.Item1 * 100 / progress.Item2;
+            }
+
+            System.Threading.Tasks.Task task = _hds.Start();
+            string toWrite = "";
+            task.ContinueWith(t =>
+            {
+                toWrite = $"finitoooo!! {DownloadedTS}";
+            });
+            task.Wait();
+            Console.WriteLine($"stampa questo: ");
+        }
+
+        private void Hds_DownloadedFragment(object sender, EventArgs e)
+        {
+            DownloadedTS = _hds.LastDownloadedFragment.TimestampEnd;
+            Percentage = (int)_hds.LastDownloadedFragment.Id * 100 / _hds.FragmentsCount;
+            Console.WriteLine($"DownloadedTS: { DownloadedTS }; Percentage: { Percentage }");
+        }
+
+        private void Hds_DownloadStatusChanged(object sender, EventArgs e)
+        {
+            DownloadStatus = _hds.Status;
+            Console.WriteLine($"STATO CAMBIATO: {_hds.Status}");
         }
     }
 }
