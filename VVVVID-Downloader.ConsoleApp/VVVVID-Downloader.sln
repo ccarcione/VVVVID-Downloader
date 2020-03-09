@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29806.167
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VVVVID-Downloader.ConsoleApp", "VVVVID-Downloader.ConsoleApp\VVVVID-Downloader.ConsoleApp.csproj", "{33A1180F-F467-4202-85C5-F538D03B983B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VVVVID-Downloader.ConsoleApp", "VVVVID-Downloader.ConsoleApp\VVVVID-Downloader.ConsoleApp.csproj", "{33A1180F-F467-4202-85C5-F538D03B983B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VVVVID-Downloader.WebAPI", "VVVVID-Downloader.WebAPI\VVVVID-Downloader.WebAPI.csproj", "{3C880DBA-76FE-4F7D-BE96-27EFC322ADEF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{33A1180F-F467-4202-85C5-F538D03B983B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{33A1180F-F467-4202-85C5-F538D03B983B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{33A1180F-F467-4202-85C5-F538D03B983B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3C880DBA-76FE-4F7D-BE96-27EFC322ADEF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3C880DBA-76FE-4F7D-BE96-27EFC322ADEF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3C880DBA-76FE-4F7D-BE96-27EFC322ADEF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3C880DBA-76FE-4F7D-BE96-27EFC322ADEF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
