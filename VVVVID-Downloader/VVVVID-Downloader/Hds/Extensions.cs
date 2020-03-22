@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace VVVVID_Downloader.ConsoleApp.Hds
+namespace VVVVID_Downloader.Hds
 {
     public static class Extensions
     {

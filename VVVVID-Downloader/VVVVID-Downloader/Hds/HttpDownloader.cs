@@ -4,7 +4,7 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace VVVVID_Downloader.ConsoleApp
+namespace VVVVID_Downloader
 {
     static class HttpDownloader
     {

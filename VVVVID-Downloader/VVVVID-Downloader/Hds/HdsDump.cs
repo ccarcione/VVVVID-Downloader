@@ -2,7 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace VVVVID_Downloader.ConsoleApp
+namespace VVVVID_Downloader
 {
     public class HdsDump : IDisposable
     {

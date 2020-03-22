@@ -5,7 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace VVVVID_Downloader.ConsoleApp.Hds
+namespace VVVVID_Downloader.Hds
 {
     public class HdsTool
     {

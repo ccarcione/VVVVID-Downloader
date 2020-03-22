@@ -1,4 +1,4 @@
-﻿namespace VVVVID_Downloader.ConsoleApp
+﻿namespace VVVVID_Downloader
 {
     public class Episode
     {

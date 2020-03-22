@@ -1,4 +1,4 @@
-﻿namespace VVVVID_Downloader.ConsoleApp
+﻿namespace VVVVID_Downloader
 {
     // Adobe likes big-endian, but Microsoft does not, so I can't use BinaryReader
     class BoxReader

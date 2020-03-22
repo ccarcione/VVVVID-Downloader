@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace VVVVID_Downloader.ConsoleApp.Hds
+namespace VVVVID_Downloader.Hds
 {
     public class XmlNode
     {

@@ -7,7 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace VVVVID_Downloader.WebAPI
+namespace VVVVID_Downloader.WebApi
 {
     public class Program
     {

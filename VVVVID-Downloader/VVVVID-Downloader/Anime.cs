@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace VVVVID_Downloader.ConsoleApp
+namespace VVVVID_Downloader
 {
     public class Anime
     {

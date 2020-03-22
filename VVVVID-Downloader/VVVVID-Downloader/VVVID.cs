@@ -5,10 +5,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
-using VVVVID_Downloader.ConsoleApp.Hds;
-using static VVVVID_Downloader.ConsoleApp.HdsDump;
+using VVVVID_Downloader.Hds;
+using static VVVVID_Downloader.HdsDump;
 
-namespace VVVVID_Downloader.ConsoleApp
+namespace VVVVID_Downloader
 {
     public class VVVID
     {

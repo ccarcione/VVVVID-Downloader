@@ -3,7 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace VVVVID_Downloader.ConsoleApp
+namespace VVVVID_Downloader
 {
     class FlvWriter : IDisposable
     {

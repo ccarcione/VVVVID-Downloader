@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using VVVVID_Downloader.ConsoleApp.Hds;
+using VVVVID_Downloader.Hds;
 
-namespace VVVVID_Downloader.ConsoleApp
+namespace VVVVID_Downloader
 {
     static class F4m
     {
