@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿
+using Newtonsoft.Json;
 using NYoutubeDL;
 using System;
 using System.Collections.Generic;
@@ -12,20 +13,29 @@ namespace VVVVID_Downloader
 {
     public class VVVID
     {
+        private static string _connectionId;
         private static CookieContainer _cookieContainer = new CookieContainer();
-        private static String _connectionId;
-        public Anime Anime;
-
         private HdsDump _hds;
-        private TimeSpan _downloadedTS;
-        public TimeSpan DownloadedTS { get => _downloadedTS; private set { _downloadedTS = value; } }
-        private int _percentage;
-        public int Percentage { get => _percentage; private set { _percentage = value; } }
-        private DownloadStatus _downloadStatus;
-        public DownloadStatus DownloadStatus { get => _downloadStatus; private set { _downloadStatus = value; } }
+
+        public TimeSpan DownloadedTS { get; private set; }
+        public int Percentage { get; private set;}
+        public DownloadStatus DownloadStatus { get; private set; }
 
         public VVVID()
-        { _connectionId = GetConnectionId(); }
+        {
+            _connectionId = GetConnectionId();
+        }
+
+        /// <summary>
+        /// Ottiene un codice di autorizzazione per comunicare con vvvvid.
+        /// </summary>
+        /// <returns></returns>
+        private static string GetConnectionId()
+        {
+            string response = WebRequest("https://www.vvvvid.it/user/login");
+            return response.Split(new[] { "\"conn_id\":\"" }, StringSplitOptions.None)[1].Split('\"')[0];
+        }
+
         private static string WebRequest(string url)
         {
             ServicePointManager.ServerCertificateValidationCallback += (sender, certificate, chain, sslPolicyErrors) => true;
@@ -39,11 +49,12 @@ namespace VVVVID_Downloader
                     return sr.ReadToEnd();
             }
         }
-        private static string GetConnectionId()
-        {
-            string response = WebRequest("https://www.vvvvid.it/user/login");
-            return response.Split(new[] { "\"conn_id\":\"" }, StringSplitOptions.None)[1].Split('\"')[0];
-        }
+
+        /// <summary>
+        /// Ottieni l'elenco degli anime che iniziano con una determinata lettera.
+        /// </summary>
+        /// <param name="c"></param>
+        /// <returns></returns>
         public List<Anime> AnimeFilter(char c)
         {
             String urlFirst15 = "https://www.vvvvid.it/vvvvid/ondemand/anime/channel/10003/last?filter=" + c + "&conn_id=" + _connectionId; //Questo link mostra solo i primi 15 anime
@@ -54,53 +65,84 @@ namespace VVVVID_Downloader
             RootObject animeLast = JsonConvert.DeserializeObject<RootObject>(response);
             if (animeLast.data != null)
                 return animeFirst15.data.ToArray().Union(animeLast.data.ToArray()).ToList();
-            return animeFirst15.data.ToArray().ToList();
+            if (animeFirst15.data != null)
+                return animeFirst15.data.ToArray().ToList();
+            return new List<Anime>();
         }
+
+        /// <summary>
+        /// Ottieni il dettaglio, compreso di stagioni ed episodi, di un preciso anime.
+        /// </summary>
+        /// <param name="idAnime"></param>
+        /// <returns></returns>
         public RootObject GetAnimeData(int idAnime)
         {
             string url = $"https://www.vvvvid.it/vvvvid/ondemand/{idAnime}/seasons/?conn_id={_connectionId}";
             string response = WebRequest(url);
             RootObject animeData = JsonConvert.DeserializeObject<RootObject>(response);
 
-            // questa chiamata è per avere più dettagli negli episodi per DownloadWithHDS(). controlla commit
-            url = $"http://www.vvvvid.it/vvvvid/ondemand/{idAnime}/season/{animeData.data[0].season_id}?conn_id={_connectionId}";   //QUesta chiamata mi da più dettagli per episodio
-            string response2 = WebRequest(url);
-            RootEpisodeObject rootEpisodeObject = JsonConvert.DeserializeObject<RootEpisodeObject>(response2);
-            animeData.data[0].episodes = rootEpisodeObject.data;
+            //get dati per titolo
+            Anime anime = null;
+            for (char letter = 'a'; letter <= 'z'; letter++)
+            {
+                List<Anime> list = AnimeFilter(letter);
+                anime = list.FirstOrDefault(f => f.show_id == idAnime);
+                if (anime != null)
+                {
+                    break;
+                }
+            }
+
+            foreach (Anime a in animeData.data)
+            {
+                // questa chiamata è per avere più dettagli negli episodi per DownloadWithHDS(). controlla commit
+                url = $"http://www.vvvvid.it/vvvvid/ondemand/{idAnime}/season/{a.season_id}?conn_id={_connectionId}";   //QUesta chiamata mi da più dettagli per episodio
+                string response2 = WebRequest(url);
+                a.episodes = JsonConvert.DeserializeObject<RootEpisodeObject>(response2).data;
+             
+                a.episodes.ForEach(ep => ep.videoLink = GetEpisodeVideoLink(ep, a.show_id));
+
+                a.title = anime.title;
+            }
 
             return animeData;
         }
-        public void Start(int episodioNumero)
-        {
-            GetLinks(episodioNumero);
-            foreach (Episode ep in Anime.episodes)
-                if (!String.IsNullOrEmpty(ep.videoLink) && ep.playable)
-                {
-                    DownloadWithYoutubeDL(ep);
-                    DownloadWithHDS(ep);
-                }
-        }
-        private void GetLinks(int episodioNumero)
-        {
-            if (episodioNumero < 0)
-                foreach (Episode ep in Anime.episodes)
-                    ep.videoLink = GetEpisodeVideoLink(ep);
-            else Anime.episodes[episodioNumero].videoLink = GetEpisodeVideoLink(Anime.episodes[episodioNumero]);
-        }
-        private string GetEpisodeVideoLink(Episode ep)
+
+        /// <summary>
+        /// Genera link per il download dell'episodio.
+        /// </summary>
+        /// <param name="ep"></param>
+        /// <param name="animeShowId"></param>
+        /// <returns></returns>
+        public string GetEpisodeVideoLink(Episode ep, int animeShowId)
         {
             if (ep.vod_mode == 2) throw new Exception("solo per utenti premium"); //vod_mode == 2 solo per utenti premium
-            return $"https://www.vvvvid.it/#!show/{Anime.show_id}/text/{ep.season_id}/{ep.video_id}/text";
+            return $"https://www.vvvvid.it/#!show/{animeShowId}/text/{ep.season_id}/{ep.video_id}/text";
         }
-        private void DownloadWithYoutubeDL(Episode ep)
+
+        /// <summary>
+        /// Scarica l'episodio tramite la libreria (python???) YoutubeDL.
+        /// </summary>
+        /// <param name="episode"></param>
+        /// <param name="anime"></param>
+        public void DownloadWithYoutubeDL(Episode episode, Anime anime)
         {
+            if (!episode.playable)
+            {
+                throw new Exception("episode can not be playable");
+            }
+            if (string.IsNullOrWhiteSpace(episode.videoLink))
+            {
+                throw new Exception("videoLink can not be empty or null");
+            }
+
             string rootPath = AppDomain.CurrentDomain.BaseDirectory;
-            string fileName = $"{Anime.title} S{Anime.number}E{ep.number} - {ep.title}.mp4";
+            string fileName = $"{anime.title} S{anime.number}E{episode.number} - {episode.title}.mp4";
 
             Console.WriteLine($"Downloading {fileName}");
             YoutubeDL youtubeDL = new YoutubeDL();
             youtubeDL.Options.FilesystemOptions.Output = Path.Combine(rootPath, fileName);
-            youtubeDL.VideoUrl = ep.videoLink;
+            youtubeDL.VideoUrl = episode.videoLink;
             youtubeDL.Options.PostProcessingOptions.KeepVideo = true;
             //youtubeDL.Options.PostProcessingOptions.ExtractAudio = true;
             youtubeDL.Options.PostProcessingOptions.FfmpegLocation = Path.Combine(rootPath, "ffmpeg-20200306-cfd9a65-win64-static", "bin"); //https://github.com/ytdl-org/youtube-dl/issues/2815
@@ -137,15 +179,25 @@ namespace VVVVID_Downloader
             //process.StartInfo = new ProcessStartInfo(Path.Combine(rootPath, fileName));
             //process.Start();
         }
-        private void DownloadWithHDS(Episode ep)
+
+        /// <summary>
+        /// Scarica l'episodio tramite la libreria HDS.
+        /// </summary>
+        /// <param name="episode"></param>
+        public void DownloadWithHDS(Episode episode, Anime anime)
         {
-            string url = $"http://www.vvvvid.it/vvvvid/ondemand/{Anime.show_id}/season/{Anime.season_id}?conn_id={_connectionId}";
+            if (!episode.playable)
+            {
+                throw new Exception("episode can not be playable");
+            }
+
+            string url = $"http://www.vvvvid.it/vvvvid/ondemand/{anime.show_id}/season/{anime.season_id}?conn_id={_connectionId}";
             string response = WebRequest(url);
             var dettaglioEpisodio = JsonConvert.DeserializeObject<Episode>(response);
 
 
-            string manifestLink = HdsTool.DecodeManifestLink(ep.embed_info);
-            string fileName = string.Format("{0}\\{0} {1} - {2}.flv", HdsTool.SanitizeFileName(Anime.title), ep.number, HdsTool.SanitizeFileName(ep.title));
+            string manifestLink = HdsTool.DecodeManifestLink(episode.embed_info);
+            string fileName = string.Format("{0}\\{0} {1} - {2}.flv", HdsTool.SanitizeFileName(anime.title), episode.number, HdsTool.SanitizeFileName(episode.title));
             _hds = new HdsDump(manifestLink, fileName);
             _hds.DownloadedFragment += Hds_DownloadedFragment;
             _hds.DownloadStatusChanged += Hds_DownloadStatusChanged;
@@ -164,7 +216,6 @@ namespace VVVVID_Downloader
                 toWrite = $"finitoooo!! {DownloadedTS}";
             });
             task.Wait();
-            Console.WriteLine($"stampa questo: ");
         }
 
         private void Hds_DownloadedFragment(object sender, EventArgs e)
@@ -179,5 +230,6 @@ namespace VVVVID_Downloader
             DownloadStatus = _hds.Status;
             Console.WriteLine($"STATO CAMBIATO: {_hds.Status}");
         }
+
     }
 }

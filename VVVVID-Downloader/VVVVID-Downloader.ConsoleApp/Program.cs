@@ -7,12 +7,15 @@ namespace VVVVID_Downloader.ConsoleApp
     class Program
     {
         public static VVVID _vvvID;
+        private static Anime _anime;
+
         static void Main(string[] args)
         {
             _vvvID = new VVVID();
             GetAnime();
-            int episodioNumero = SelectEpisode();
-            _vvvID.Start(episodioNumero);
+            Episode episode = _anime.episodes[SelectEpisode()];
+            //_vvvID.DownloadWithHDS(episode, _anime);
+            _vvvID.DownloadWithYoutubeDL(episode, _anime);
             Console.ReadKey();
         }
         static void GetAnime()
@@ -37,12 +40,12 @@ namespace VVVVID_Downloader.ConsoleApp
                 Console.Write("Scegli: ");
                 i = int.Parse(Console.ReadLine()) - 1;
             }
-            _vvvID.Anime = animeData.data[i];
-            _vvvID.Anime.title = listAnime[animeNumero].title;
+            _anime = animeData.data[i];
+            _anime.title = listAnime[animeNumero].title;
         }
         static int SelectEpisode()
         {
-            Anime anime = _vvvID.Anime;
+            Anime anime = _anime;
             for (int i = 0; i < anime.episodes.Count; i++)
                 if (anime.episodes[i].playable)
                     Console.WriteLine($"{anime.episodes[i].number}  <-\t {anime.title} {anime.episodes[i].number}");

@@ -26,6 +26,8 @@ namespace VVVVID_Downloader.WebApi
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+
+            services.AddScoped<VVVID>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
