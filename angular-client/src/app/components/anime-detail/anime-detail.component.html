@@ -1,0 +1,41 @@
+<ng-template #title>
+    <span>{{anime[0].title}}</span>
+</ng-template>
+
+<div class="a">
+  <div *ngIf="!isMobile" class="descrizione">
+    <img src={{anime[0].thumbnail}}>
+    <div>
+      <p>Episodi: {{anime[0].episodes.length}}</p>
+      <p>Pubblicazione: {{anime[0].date_published}}</p>
+      <p>{{anime[0].additional_info}}</p>
+    </div>
+  </div>
+  <div class="divider"></div>
+  <div *ngIf="anime && anime.length == 1" class="elenco-episodi">
+    <div *ngFor="let aa of anime">
+        <ng-container *ngTemplateOutlet="detail; context:{data:aa}"></ng-container>
+    </div>
+  </div>
+  <mat-tab-group *ngIf="anime && anime.length > 1" class="elenco-episodi">
+    <mat-tab *ngFor="let a of anime" label={{a.name}}>
+      <ng-container *ngTemplateOutlet="detail; context:{data:a}"></ng-container>
+    </mat-tab>
+  </mat-tab-group>
+</div>
+
+<ng-template #detail let-anime='data'>
+  <div>
+    <div *ngFor="let e of anime.episodes" class="episodio" [ngClass]="isMobile ? 'mobile' : ''">
+      <img src={{e.thumbnail}} />
+      <div class="titolo-e-azioni">
+        <p class="titolo">{{e.title}}</p>
+        <div class="divider"></div>
+        <div class="azioni">
+          <button mat-raised-button color="primary">Download</button>
+          <button mat-raised-button class="aggiungi-a-plex">Aggiungi a plex</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-template>

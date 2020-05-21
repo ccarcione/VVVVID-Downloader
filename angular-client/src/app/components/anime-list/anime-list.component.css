@@ -1,0 +1,40 @@
+.elenco-anime {
+    height: 100%;
+    overflow: auto;
+}
+
+.anime {
+	background-color: #fff;
+	border-radius: 10px;
+	box-shadow: 0 10px 10px rgba(0, 0, 0, 0.2);
+	display: flex;
+	max-width: 100%;
+	margin: 20px;
+  min-width: 270px;
+  height: auto;
+}
+
+.anime.mobile {
+  flex-direction: column;
+}
+
+.anime > img {
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+    max-width: 250px;
+    object-fit: cover;
+}
+
+.anime.mobile > img {
+  max-width: none;
+  border-bottom-left-radius: 0px;
+  border-top-right-radius: 10px;
+}
+
+.anime-preview {
+  padding: 0px 10px;
+}
+
+.titolo {
+  font-weight: bold;
+}

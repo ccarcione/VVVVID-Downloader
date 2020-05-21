@@ -14,6 +14,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { MatInputModule, MatPaginatorModule, MatProgressSpinnerModule, MatSortModule, MatTableModule } from '@angular/material';
 import { AnimeListComponent } from './components/anime-list/anime-list.component';
 import { AboutComponent } from './components/about/about.component';
+import { AnimeDetailComponent } from './components/anime-detail/anime-detail.component';
 
 
 @NgModule({
@@ -24,7 +25,8 @@ import { AboutComponent } from './components/about/about.component';
     ShellMenuDirective,
     HomeComponent,
     AnimeListComponent,
-    AboutComponent
+    AboutComponent,
+    AnimeDetailComponent
   ],
   imports: [
     BrowserModule,

@@ -1,0 +1,89 @@
+.a {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.elenco-episodi {
+  overflow: auto;
+}
+
+.episodio {
+  background-color: #fff;
+	border-radius: 10px;
+	box-shadow: 0 10px 10px rgba(0, 0, 0, 0.2);
+	display: flex;
+	max-width: 100%;
+	margin: 20px;
+  min-width: 270px;
+}
+
+.episodio.mobile {
+  flex-direction: column;
+}
+
+.episodio > img {
+  border-top-left-radius: 10px;
+  border-bottom-left-radius: 10px;
+  max-width: 250px;
+}
+
+.episodio.mobile > img {
+  border-bottom-left-radius: 0px;
+  border-top-right-radius: 10px;
+  object-fit: cover;
+  max-width: none;
+  width: 100%;
+}
+
+.descrizione {
+  flex: 0 0 auto;
+  padding: 10px;
+  display: flex;
+}
+
+.descrizione > img {
+  border-radius: 10px;
+  max-width: 250px;
+  object-fit: cover;
+}
+
+.descrizione > div {
+  display: flex;
+  flex-direction: column;
+  padding-left: 10px;
+}
+
+.descrizione > div > p {
+  margin: unset;
+  margin-bottom: 5px;
+  margin-top: 5px;
+}
+
+.divider {
+  border-top: 2px solid lightgray;
+  margin: 0% 1%;
+}
+
+.titolo-e-azioni {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.titolo {
+  padding: 0px 10px;
+  flex: 1 0 auto;
+  font-size: x-large;
+}
+
+.azioni {
+  padding: 10px;
+  display: flex;
+  justify-content: space-evenly;
+  max-width: 290px;
+}
+
+.aggiungi-a-plex {
+  background-color: #e5a00d;
+}

@@ -4,6 +4,7 @@ import { AppComponent } from './app.component';
 import { HomeComponent } from './components/home/home.component';
 import { AnimeListComponent } from './components/anime-list/anime-list.component';
 import { AboutComponent } from './components/about/about.component';
+import { AnimeDetailComponent } from './components/anime-detail/anime-detail.component';
 
 
 const routes: Routes = [
@@ -16,8 +17,12 @@ const routes: Routes = [
         component: HomeComponent,
         children: [
           {
-            path: 'anime-list',
+            path: 'anime',
             component: AnimeListComponent
+          },
+          {
+            path: 'anime/:show_id',
+            component: AnimeDetailComponent
           },
           {
             path: 'about',

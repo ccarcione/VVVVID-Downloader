@@ -1,1 +1,14 @@
-<p>anime-list works!</p>
+<ng-template #title>
+    <span>VVVID Anime</span>
+</ng-template>
+
+<div class="elenco-anime">
+    <div *ngFor="let a of animeList" class="anime" routerLink="{{a.show_id}}" [ngClass]="isMobile ? 'mobile' : ''">
+        <img src={{a.thumbnail}} />
+        <div class="anime-preview">
+            <p class="titolo">{{a.title}}</p>
+            <p>Pubblicazione: {{a.date_published}}</p>
+            <p>{{a.additional_info}}</p>
+        </div>
+    </div>
+</div>
