@@ -12,6 +12,9 @@ namespace VVVVID_Downloader
         public List<Episode> episodes { get; set; }
         public string name { get; set; }
         public string title { get; set; }
-
+        public string thumbnail { get; set; }
+        public string date_published { get; set; }
+        public string additional_info { get; set; }
+        public string director { get; set; }
     }
 }
