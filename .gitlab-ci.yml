@@ -30,34 +30,6 @@ before_script:
   - mkdir -p ~/.ssh
   - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
 
-build_webserver:
-    stage: build
-    only:
-        - master
-        - production
-    image: mcr.microsoft.com/dotnet/core/sdk:3.1
-    script:
-        - cd VVVVID-Downloader/VVVVID-Downloader.WebApi
-        - dotnet restore
-        - dotnet build -- configuration Debug
-
-deploy_webserver_production:
-    stage: deploy
-    only:
-        - production
-    variables:
-        CONFIGURATION: "Release"
-        SSH_USERNAME: "$U_experimenta"
-        SSH_PASSWORD: "$P_experimenta"
-        FOLDER: "VVVVID-Downloader.WebApi"
-    script:
-      - cd VVVVID-Downloader/VVVVID-Downloader.WebApi
-    <<: *deploy_webserver_on_linux
-    after_script:
-        # riavvio servizio
-        - apt-get install -y sshpass
-        - sshpass -p $SSH_PASSWORD ssh $SSH_USERNAME@$HOST systemctl restart kestrel-VVVVID-Downloader.WebApi.service
-
 build_ui:
     stage: build
     only:
@@ -79,5 +51,34 @@ deploy_ui:
         - npm i
         - ng build --prod
         - echo "push angular-client to $HOST"
+        - ssh-keyscan -H $HOST >> ~/.ssh/known_hosts
         - lftp -e "mirror -R dist/angular-client/ /var/www/angular-client ; exit" -u $U_experimenta,$P_experimenta sftp://$HOST
         - echo "done!"
+
+build_webserver:
+    stage: build
+    only:
+        - master
+        - production
+    image: mcr.microsoft.com/dotnet/core/sdk:3.1
+    script:
+        - cd VVVVID-Downloader/VVVVID-Downloader.WebApi
+        - dotnet restore
+        - dotnet build -- configuration Debug
+
+deploy_webserver_production:
+    stage: deploy
+    only:
+        - production
+    variables:
+        CONFIGURATION: "Release"
+        SSH_USERNAME: "$U_experimenta"
+        SSH_PASSWORD: "$P_experimenta"
+        FOLDER: "VVVVID-Downloader.WebApi"
+    before_script:
+      - cd VVVVID-Downloader/VVVVID-Downloader.WebApi
+    <<: *deploy_webserver_on_linux
+    after_script:
+        # riavvio servizio
+        - apt-get install -y sshpass
+        - sshpass -p $SSH_PASSWORD ssh $SSH_USERNAME@$HOST systemctl restart kestrel-VVVVID-Downloader.WebApi.service
