@@ -16,7 +16,6 @@ export class AnimeListComponent implements OnInit, OnDestroy, ShellData {
   @ViewChild('title', { static: true }) title: ElementRef;
   isMobile: boolean = false;
 
-
   constructor(
     private ss: ShellService,
     private animeService: AnimeService,

@@ -2,7 +2,11 @@
     <span>VVVID Anime</span>
 </ng-template>
 
-<div *ngIf="animeList"  class="elenco-anime">
+<div *ngIf="!animeList" class="spinner">
+  <mat-spinner value="indeterminate"></mat-spinner>
+</div>
+
+<div *ngIf="animeList" class="elenco-anime">
     <div *ngFor="let a of animeList" class="anime" routerLink="{{a.show_id}}" [ngClass]="isMobile ? 'mobile' : ''">
         <img src={{a.thumbnail}} />
         <div class="anime-preview">

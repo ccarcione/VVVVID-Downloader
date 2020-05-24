@@ -2,6 +2,10 @@
     <span>{{anime[0].title}}</span>
 </ng-template>
 
+<div *ngIf="!anime" class="spinner">
+  <mat-spinner value="indeterminate"></mat-spinner>
+</div>
+
 <div *ngIf="anime"  class="a">
   <div *ngIf="!isMobile" class="descrizione">
     <img src={{anime[0].thumbnail}}>

@@ -1,3 +1,12 @@
+.spinner {
+  height: 100%;
+  display: flex;
+}
+
+.spinner > mat-spinner {
+  margin: auto;
+}
+
 .elenco-anime {
     height: 100%;
     overflow: auto;
