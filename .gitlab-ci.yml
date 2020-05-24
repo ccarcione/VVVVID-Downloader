@@ -37,7 +37,7 @@ build_webserver:
         - production
     image: mcr.microsoft.com/dotnet/core/sdk:3.1
     script:
-        - cd VVVVID-Downloader\VVVVID-Downloader.WebApi
+        - cd VVVVID-Downloader/VVVVID-Downloader.WebApi
         - dotnet restore
         - dotnet build -- configuration Debug
 
@@ -51,7 +51,7 @@ deploy_webserver_production:
         SSH_PASSWORD: "$P_experimenta"
         FOLDER: "VVVVID-Downloader.WebApi"
     script:
-      - cd VVVVID-Downloader\VVVVID-Downloader.WebApi
+      - cd VVVVID-Downloader/VVVVID-Downloader.WebApi
     <<: *deploy_webserver_on_linux
     after_script:
         # riavvio servizio
