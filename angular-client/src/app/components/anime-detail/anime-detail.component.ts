@@ -5,7 +5,6 @@ import { ActivatedRoute } from '@angular/router';
 import { AnimeService } from 'src/app/services/anime.service';
 import { Subscription, combineLatest } from 'rxjs';
 import { Anime } from 'src/app/models/anime';
-import { write } from 'fs';
 
 @Component({
   selector: 'app-anime-detail',

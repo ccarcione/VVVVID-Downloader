@@ -34,8 +34,6 @@ namespace VVVVID_Downloader.WebApi
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseExceptionHandler();
-
             app.UseForwardedHeaders(new ForwardedHeadersOptions
             {
                 ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
