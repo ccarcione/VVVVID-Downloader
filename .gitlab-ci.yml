@@ -1,0 +1,83 @@
+.deploy_webserver_on_linux_template: &deploy_webserver_on_linux
+    image: mcr.microsoft.com/dotnet/core/sdk:3.1
+    script:
+        - echo "deploying on $HOST"
+        - dotnet restore
+        - dotnet build --configuration $CONFIGURATION
+        - dotnet publish --configuration $CONFIGURATION --framework $FRAMEWORK --self-contained true --runtime linux-x64
+        - cd bin/$CONFIGURATION/$FRAMEWORK/linux-x64
+        - apt-get update -qy
+        - apt-get install -y lftp
+        - echo "push .net core to $HOST"
+        - lftp -e "mirror -R publish/ /var/www/$FOLDER ; exit" -u $SSH_USERNAME,$SSH_PASSWORD sftp://$HOST
+        - echo "done!"
+
+stages:
+    - build
+    - deploy
+
+variables:
+    FRAMEWORK: "netcoreapp3.1"
+    HOST: "80.211.230.253"
+
+before_script:
+  #- apt-get update -qq
+  #- apt-get install -qq git
+  # Setup SSH deploy keys
+  #- 'which ssh-agent || ( apt-get install -qq openssh-client )'
+  #- eval $(ssh-agent -s)
+  #- ssh-add <(echo "$SSH_PRIVATE_KEY")
+  - mkdir -p ~/.ssh
+  - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
+
+build_webserver:
+    stage: build
+    only:
+        - master
+        - production
+    image: mcr.microsoft.com/dotnet/core/sdk:3.1
+    script:
+        - cd VVVVID-Downloader\VVVVID-Downloader.WebApi
+        - dotnet restore
+        - dotnet build -- configuration Debug
+
+deploy_webserver_production:
+    stage: deploy
+    only:
+        - production
+    variables:
+        CONFIGURATION: "Release"
+        SSH_USERNAME: "$U_experimenta"
+        SSH_PASSWORD: "$P_experimenta"
+        FOLDER: "VVVVID-Downloader.WebApi"
+    script:
+      - cd VVVVID-Downloader\VVVVID-Downloader.WebApi
+    <<: *deploy_webserver_on_linux
+    after_script:
+        # riavvio servizio
+        - apt-get install -y sshpass
+        - sshpass -p $SSH_PASSWORD ssh $SSH_USERNAME@$HOST systemctl restart kestrel-VVVVID-Downloader.WebApi.service
+
+build_ui:
+    stage: build
+    only:
+        - master
+        - production
+    image: registry.gitlab.com/projects-experimenta/vvvvid-downloader:angular-cli-9.1.6
+    script:
+        - cd angular-client
+        - npm i
+        - ng build
+
+deploy_ui:
+    stage: deploy
+    only:
+        - production
+    image: registry.gitlab.com/projects-experimenta/vvvvid-downloader:angular-cli-9.1.6
+    script: 
+        - cd angular-client
+        - npm i
+        - ng build --prod
+        - echo "push angular-client to $HOST"
+        - lftp -e "mirror -R dist/angular-client/ /var/www/angular-client ; exit" -u $U_experimenta,$P_experimenta sftp://$HOST
+        - echo "done!"
