@@ -1,6 +1,7 @@
 .deploy_webserver_on_linux_template: &deploy_webserver_on_linux
     script:
         - echo "deploying on $HOST"
+        - cd $PROJECT_FOLDER
         - dotnet restore
         - dotnet build --configuration $CONFIGURATION
         - dotnet publish --configuration $CONFIGURATION --framework $FRAMEWORK --self-contained true --runtime linux-x64
@@ -8,7 +9,7 @@
         - apt-get update -qy
         - apt-get install -y lftp
         - echo "push .net core to $HOST"
-        - lftp -e "mirror -R publish/ /var/www/$FOLDER ; exit" -u $SSH_USERNAME,$SSH_PASSWORD sftp://$HOST
+        - lftp -e "mirror -R publish/ /var/www/$PUBLISH_FOLDER ; exit" -u $SSH_USERNAME,$SSH_PASSWORD sftp://$HOST
         - echo "done!"
 
 stages:
@@ -45,9 +46,8 @@ deploy_webserver_production:
         CONFIGURATION: "Release"
         SSH_USERNAME: "$U_experimenta"
         SSH_PASSWORD: "$P_experimenta"
-        FOLDER: "VVVVID-Downloader.WebApi"
-    before_script:
-        - cd VVVVID-Downloader/VVVVID-Downloader.WebApi
+        PROJECT_FOLDER: "VVVVID-Downloader/VVVVID-Downloader.WebApi"
+        PUBLISH_FOLDER: "VVVVID-Downloader.WebApi"
     <<: *deploy_webserver_on_linux
     after_script:
         # riavvio servizio
