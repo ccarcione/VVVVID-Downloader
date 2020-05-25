@@ -27,7 +27,7 @@ before_script:
     - chmod 644 ~/.ssh/known_hosts
     - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
 
-build_webserver:
+build_api_service:
     stage: build
     image: mcr.microsoft.com/dotnet/core/sdk:3.1
     rules:
@@ -37,15 +37,15 @@ build_webserver:
         - dotnet restore
         - dotnet build -- configuration Debug
 
-deploy_webserver_production:
+deploy_api_service:
     stage: deploy
     image: mcr.microsoft.com/dotnet/core/sdk:3.1
     rules:
         - if: '$CI_COMMIT_REF_NAME == "production"'
     variables:
         CONFIGURATION: "Release"
-        SSH_USERNAME: "$U_experimenta"
-        SSH_PASSWORD: "$P_experimenta"
+        SSH_USERNAME: "$USERHOST"
+        SSH_PASSWORD: "$PASSWORDHOST"
         PROJECT_FOLDER: "VVVVID-Downloader/VVVVID-Downloader.WebApi"
         PUBLISH_FOLDER: "VVVVID-Downloader.WebApi"
     <<: *deploy_webserver_on_linux
@@ -58,7 +58,7 @@ build_ui:
     stage: build
     rules:
         - if: '$CI_COMMIT_REF_NAME == "master" || $CI_COMMIT_REF_NAME == "production"'
-    image: registry.gitlab.com/projects-experimenta/vvvvid-downloader:angular-cli-9.1.6
+    image: registry.gitlab.com/projects-experimenta/cre-tv:angular-cli-9.1.6
     script:
         - cd angular-client
         - npm i
@@ -68,12 +68,12 @@ deploy_ui:
     stage: deploy
     rules:
         - if: '$CI_COMMIT_REF_NAME == "production"'
-    image: registry.gitlab.com/projects-experimenta/vvvvid-downloader:angular-cli-9.1.6
+    image: registry.gitlab.com/projects-experimenta/cre-tv:angular-cli-9.1.6
     script: 
         - cd angular-client
         - npm i
         - ng build --prod
         - echo "push angular-client to $HOST"
         - chmod 644 ~/.ssh/known_hosts
-        - lftp -e "mirror -R dist/angular-client/ /var/www/angular-client ; exit" -u $U_experimenta,$P_experimenta sftp://$HOST
+        - lftp -e "mirror -R dist/angular-client/ /var/www/angular-client ; exit" -u $USERHOST,$PASSWORDHOST sftp://$HOST
         - echo "done!"
