@@ -96,7 +96,7 @@ namespace VVVVID_Downloader
             foreach (Anime a in animeData.data)
             {
                 // questa chiamata è per avere più dettagli negli episodi per DownloadWithHDS(). controlla commit
-                url = $"http://www.vvvvid.it/vvvvid/ondemand/{idAnime}/season/{a.season_id}?conn_id={_connectionId}";   //QUesta chiamata mi da più dettagli per episodio
+                url = $"https://www.vvvvid.it/vvvvid/ondemand/{idAnime}/season/{a.season_id}?conn_id={_connectionId}";   //QUesta chiamata mi da più dettagli per episodio
                 string response2 = WebRequest(url);
                 a.episodes = JsonConvert.DeserializeObject<RootEpisodeObject>(response2).data;
              
