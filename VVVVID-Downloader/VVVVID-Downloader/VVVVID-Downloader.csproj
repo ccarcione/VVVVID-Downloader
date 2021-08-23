@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="BtbN_FFmpeg-Builds\bin\ffmpeg.exe">
+    <None Include="BtbN_FFmpeg-Builds\**">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="youtube-dl">

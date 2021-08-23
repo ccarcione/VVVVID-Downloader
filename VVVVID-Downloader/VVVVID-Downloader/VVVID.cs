@@ -145,7 +145,17 @@ namespace VVVVID_Downloader
             youtubeDL.VideoUrl = episode.videoLink;
             youtubeDL.Options.PostProcessingOptions.KeepVideo = true;
             //youtubeDL.Options.PostProcessingOptions.ExtractAudio = true;
-            youtubeDL.Options.PostProcessingOptions.FfmpegLocation = Path.Combine(rootPath, "ffmpeg-20200306-cfd9a65-win64-static", "bin"); //https://github.com/ytdl-org/youtube-dl/issues/2815
+            
+            string env = string.Empty;
+            if (Environment.OSVersion.Platform == PlatformID.Win32NT)
+            {
+                env = "win64";
+            }
+            else if (Environment.OSVersion.Platform == PlatformID.Unix)
+            {
+                env = "linux64";
+            }
+            youtubeDL.Options.PostProcessingOptions.FfmpegLocation = Path.Combine(rootPath, "BtbN_FFmpeg-Builds", env, "bin"); //https://github.com/ytdl-org/youtube-dl/issues/2815
 
             // Subscribe to the console output (optional, but recommended)
             youtubeDL.StandardOutputEvent += (sender, output) => Console.WriteLine(output);
