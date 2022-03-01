@@ -5,9 +5,9 @@ VisualStudioVersion = 16.0.29806.167
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VVVVID-Downloader", "VVVVID-Downloader\VVVVID-Downloader.csproj", "{2FC12511-DADE-4452-AEE4-BEC95A439915}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VVVVID-Downloader.WebApi", "VVVVID-Downloader.WebApi\VVVVID-Downloader.WebApi.csproj", "{7957B22E-7659-4705-91F1-7A2664ABE18B}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VVVVID-Downloader.ConsoleApp", "VVVVID-Downloader.ConsoleApp\VVVVID-Downloader.ConsoleApp.csproj", "{E2BA8E80-A839-454B-B691-9B596C5D6575}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VVVVID-Downloader.WebApi", "VVVVID-Downloader.WebApi\VVVVID-Downloader.WebApi.csproj", "{71E37F52-30F6-4460-82A7-7C03135489F6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -19,14 +19,14 @@ Global
 		{2FC12511-DADE-4452-AEE4-BEC95A439915}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2FC12511-DADE-4452-AEE4-BEC95A439915}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2FC12511-DADE-4452-AEE4-BEC95A439915}.Release|Any CPU.Build.0 = Release|Any CPU
-		{7957B22E-7659-4705-91F1-7A2664ABE18B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7957B22E-7659-4705-91F1-7A2664ABE18B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7957B22E-7659-4705-91F1-7A2664ABE18B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7957B22E-7659-4705-91F1-7A2664ABE18B}.Release|Any CPU.Build.0 = Release|Any CPU
 		{E2BA8E80-A839-454B-B691-9B596C5D6575}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{E2BA8E80-A839-454B-B691-9B596C5D6575}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E2BA8E80-A839-454B-B691-9B596C5D6575}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E2BA8E80-A839-454B-B691-9B596C5D6575}.Release|Any CPU.Build.0 = Release|Any CPU
+		{71E37F52-30F6-4460-82A7-7C03135489F6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{71E37F52-30F6-4460-82A7-7C03135489F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{71E37F52-30F6-4460-82A7-7C03135489F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{71E37F52-30F6-4460-82A7-7C03135489F6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -39,5 +39,4 @@ namespace VVVVID_Downloader.WebApi
             context.Result = new ObjectResult(message);
         }
     }
-
 }
