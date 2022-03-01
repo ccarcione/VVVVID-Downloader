@@ -1,0 +1,43 @@
+# avvia il progetto dev locale dentro i containers (uno per progetto)
+# NB: prerequisiti:
+# - npm i
+# - dotnet restore
+services:
+  api:
+    image: mcr.microsoft.com/dotnet/sdk:3.1
+    working_dir: /repo
+    entrypoint:
+      - dotnet
+      - run
+      - --project
+      - VVVVID-Downloader\VVVVID-Downloader.WebApi\VVVVID-Downloader.WebApi.csproj
+    environment:
+      # DOTNET_USE_POLLING_FILE_WATCHER: true
+      - ASPNETCORE_ENVIRONMENT=DockerContainer
+    container_name: VVVVID-Downloader.WebApi
+    networks:
+      - VVVVID-Downloader-network
+    volumes:
+      - type: bind
+        source: .
+        target: /repo
+    ports:
+      - "5000:5000"
+  site:
+    image: node:14
+    working_dir: /repo
+    entrypoint:
+      - npm
+      - run
+      - docker-container
+    container_name: angular-client-site
+    ports:
+      - "4200:4200"
+    networks:
+      - VVVVID-Downloader-network
+    volumes:
+      - type: bind
+        source: angular-client
+        target: /repo
+networks:
+  VVVVID-Downloader-network: {}

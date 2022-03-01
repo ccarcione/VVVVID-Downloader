@@ -1,0 +1,1 @@
+docker compose --file .\docker\docker-compose.testdev.yml --project-directory . --project-name VVVVID-Downloader-testdev up --build

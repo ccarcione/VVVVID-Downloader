@@ -58,6 +58,14 @@
                   "maximumError": "10kb"
                 }
               ]
+            },
+            "docker-container": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.docker-container.ts"
+                }
+              ]
             }
           }
         },
@@ -70,6 +78,9 @@
           "configurations": {
             "production": {
               "browserTarget": "angular-client:build:production"
+            },
+            "docker-container": {
+              "browserTarget": "angular-client:build:docker-container"
             }
           }
         },

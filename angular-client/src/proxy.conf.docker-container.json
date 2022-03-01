@@ -1,0 +1,10 @@
+{
+	"/api": {
+		"target": "http://VVVVID-Downloader.WebApi:5000",
+		"secure": false
+	},
+	"/connect": {
+		"target": "http://VVVVID-Downloader.WebApi:5000",
+		"secure": false
+	}
+}
