@@ -1,0 +1,25 @@
+# crea lo stack (images e container) per la produzione
+services:
+  api:
+    build: 
+      context: .
+      dockerfile: docker/api.dockerfile
+    image: vvvvid-downloader-api
+    container_name: VVVVID-Downloader.WebApi
+    # da rimuovere in produzione perchè gestisce nginx
+    # ports:
+    #   - "80:80"
+    networks:
+      - VVVVID-Downloader-network
+  site:
+    build:
+      context: .
+      dockerfile: docker/site.dockerfile
+    image: angular-client-site
+    container_name: angular-client-site
+    ports:
+      - "80:80"
+    networks:
+      - VVVVID-Downloader-network
+networks:
+  VVVVID-Downloader-network: {}
