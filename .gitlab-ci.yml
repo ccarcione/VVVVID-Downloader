@@ -1,79 +1,61 @@
-.deploy_webserver_on_linux_template: &deploy_webserver_on_linux
-    script:
-        - echo "deploying on $HOST"
-        - cd $PROJECT_FOLDER
-        - dotnet restore
-        - dotnet build --configuration $CONFIGURATION
-        - dotnet publish --configuration $CONFIGURATION --framework $FRAMEWORK --self-contained true --runtime linux-x64
-        - cd bin/$CONFIGURATION/$FRAMEWORK/linux-x64
-        - apt-get update -qy
-        - apt-get install -y lftp
-        - echo "push .net core to $HOST"
-        - lftp -e "mirror -R publish/ /var/www/$PUBLISH_FOLDER ; exit" -u $SSH_USERNAME,$SSH_PASSWORD sftp://$HOST
-        - echo "done!"
-
 stages:
-    - build
-    - deploy
+  - build
+#   - deploy
 
-variables:
-    FRAMEWORK: "netcoreapp3.1"
-    HOST: "80.211.230.253"
+# https://docs.gitlab.com/ee/ci/docker/using_kaniko.html
+build:
+  stage: build
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
+  script:
+    - mkdir -p /kaniko/.docker
+    - echo "{\"auths\":{\"${CI_REGISTRY}\":{\"auth\":\"$(printf "%s:%s" "${CI_REGISTRY_USER}" "${CI_REGISTRY_PASSWORD}" | base64 | tr -d '\n')\"}}}" > /kaniko/.docker/config.json
+    - >-
+      /kaniko/executor
+      --context "${CI_PROJECT_DIR}"
+      --dockerfile "${CI_PROJECT_DIR}/docker/api.dockerfile"
+      --destination "${CI_REGISTRY_IMAGE}-angular-client:${CI_COMMIT_TAG}"
+#   rules:
+#     - if: $CI_COMMIT_TAG =~ /v-/
 
-before_script:
-    - mkdir -p ~/.ssh
-    - chmod 700 ~/.ssh
-    - ssh-keyscan -H $HOST >> ~/.ssh/known_hosts
-    - chmod 644 ~/.ssh/known_hosts
-    - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
-
-build_api_service:
-    stage: build
-    image: mcr.microsoft.com/dotnet/core/sdk:3.1
-    rules:
-        - if: '$CI_COMMIT_REF_NAME == "master" || $CI_COMMIT_REF_NAME == "production"'
-    script:
-        - cd VVVVID-Downloader/VVVVID-Downloader.WebApi
-        - dotnet restore
-        - dotnet build -- configuration Debug
-
-deploy_api_service:
-    stage: deploy
-    image: mcr.microsoft.com/dotnet/core/sdk:3.1
-    rules:
-        - if: '$CI_COMMIT_REF_NAME == "production"'
-    variables:
-        CONFIGURATION: "Release"
-        SSH_USERNAME: "$USERHOST"
-        SSH_PASSWORD: "$PASSWORDHOST"
-        PROJECT_FOLDER: "VVVVID-Downloader/VVVVID-Downloader.WebApi"
-        PUBLISH_FOLDER: "VVVVID-Downloader.WebApi"
-    <<: *deploy_webserver_on_linux
-    after_script:
-        # riavvio servizio
-        - apt-get install -y sshpass
-        - sshpass -p $SSH_PASSWORD ssh $SSH_USERNAME@$HOST systemctl restart kestrel-VVVVID-Downloader.WebApi.service
-
-build_ui:
-    stage: build
-    rules:
-        - if: '$CI_COMMIT_REF_NAME == "master" || $CI_COMMIT_REF_NAME == "production"'
-    image: registry.gitlab.com/projects-experimenta/cre-tv:angular-cli-9.1.6
-    script:
-        - cd angular-client
-        - npm i
-        - ng build
-
-deploy_ui:
-    stage: deploy
-    rules:
-        - if: '$CI_COMMIT_REF_NAME == "production"'
-    image: registry.gitlab.com/projects-experimenta/cre-tv:angular-cli-9.1.6
-    script: 
-        - cd angular-client
-        - npm i
-        - ng build --prod
-        - echo "push angular-client to $HOST"
-        - chmod 644 ~/.ssh/known_hosts
-        - lftp -e "mirror -R dist/angular-client/ /var/www/angular-client ; exit" -u $USERHOST,$PASSWORDHOST sftp://$HOST
-        - echo "done!"
+# deploy:
+#   stage: deploy
+#   image: debian
+#   variables:
+#     SERVER: "$DEV_SERVER"
+#     USER: "$DEV_USER"
+#     PASSWORD: "$DEV_PASSWORD"
+#   before_script:
+#     - echo "install utils"
+#     - apt-get update -qy
+#     - apt-get install -y lftp sshpass openssh-client
+#     - echo "SSH add trust host"
+#     - mkdir -p ~/.ssh
+#     - chmod 700 ~/.ssh
+#     - ssh-keyscan -H $SERVER >> ~/.ssh/known_hosts
+#     - chmod 644 ~/.ssh/known_hosts
+#     - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
+#     - echo "LFTP fix trust host"
+#     - mkdir ~/.lftp
+#     - echo "set ssl:verify-certificate no" >> ~/.lftp/rc
+#   script:
+#     - echo "update docker image"
+#     - sshpass -p $PASSWORD ssh $USER@$SERVER docker pull registry.gitlab.com/christiancapp/quickapptemplate:latest
+#     - echo "create gitlab temp directory..."
+#     - echo "copy docker-compose files into gitlab temp directory..."
+#     - >-
+#       lftp -e "set ftp:ssl-protect-data true ;
+#       rmdir /temp-gitlab/quickapptemplate ;
+#       mkdir /temp-gitlab/quickapptemplate ;
+#       put -O /temp-gitlab/quickapptemplate ${CI_PROJECT_DIR}/docker/docker-compose.prod.yml ;
+#       exit"
+#       -u $USER,$PASSWORD sftp://$SERVER
+#     - echo "update docker container"
+#     - sshpass -p $PASSWORD ssh $USER@$SERVER docker-compose --file /temp-gitlab/quickapptemplate/docker-compose.prod.yml --project-name quickapp-prod up -d
+#     - echo "clean temp directory"
+#     - sshpass -p $PASSWORD ssh $USER@$SERVER rm -R /temp-gitlab/quickapptemplate
+#     - echo "info container"
+#     - sshpass -p $PASSWORD ssh $USER@$SERVER docker inspect quickapp-api
+#   rules:
+#     - if: $CI_COMMIT_TAG =~ /v-/
