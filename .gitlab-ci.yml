@@ -15,8 +15,7 @@ build-angular-client:
       /kaniko/executor
       --context "${CI_PROJECT_DIR}"
       --dockerfile "${CI_PROJECT_DIR}/docker/site.dockerfile"
-      --destination "${CI_REGISTRY_IMAGE}:${CI_COMMIT_TAG}"
-    #   --destination "${CI_REGISTRY_IMAGE}-angular-client-site:${CI_COMMIT_TAG}"
+      --destination "${CI_REGISTRY_IMAGE}/angular-client-site:${CI_COMMIT_TAG}"
 #   rules:
 #     - if: $CI_COMMIT_TAG =~ /v-/
 
@@ -32,8 +31,7 @@ build-net-core:
       /kaniko/executor
       --context "${CI_PROJECT_DIR}"
       --dockerfile "${CI_PROJECT_DIR}/docker/api.dockerfile"
-      --destination "${CI_REGISTRY_IMAGE}-vvvvid-downloader-api:${CI_COMMIT_TAG}"
-    #   --destination "${CI_REGISTRY_IMAGE}-vvvvid-downloader-api:${CI_COMMIT_TAG}"
+      --destination "${CI_REGISTRY_IMAGE}/vvvvid-downloader-api:${CI_COMMIT_TAG}"
 #   rules:
 #     - if: $CI_COMMIT_TAG =~ /v-/
 
