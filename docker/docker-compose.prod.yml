@@ -17,8 +17,9 @@ services:
       dockerfile: docker/site.dockerfile
     image: angular-client-site
     container_name: angular-client-site
-    ports:
-      - "80:80"
+    # da rimuovere in produzione perchè gestisce nginx
+    # ports:
+    #   - "80:80"
     networks:
       - VVVVID-Downloader-network
 networks:
