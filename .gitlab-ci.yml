@@ -1,6 +1,6 @@
 stages:
   - build
-#   - deploy
+  - deploy
 
 # https://docs.gitlab.com/ee/ci/docker/using_kaniko.html
 build-angular-client:
@@ -35,43 +35,46 @@ build-net-core:
 #   rules:
 #     - if: $CI_COMMIT_TAG =~ /v-/
 
-# deploy:
-#   stage: deploy
-#   image: debian
-#   variables:
-#     SERVER: "$DEV_SERVER"
-#     USER: "$DEV_USER"
-#     PASSWORD: "$DEV_PASSWORD"
-#   before_script:
-#     - echo "install utils"
-#     - apt-get update -qy
-#     - apt-get install -y lftp sshpass openssh-client
-#     - echo "SSH add trust host"
-#     - mkdir -p ~/.ssh
-#     - chmod 700 ~/.ssh
-#     - ssh-keyscan -H $SERVER >> ~/.ssh/known_hosts
-#     - chmod 644 ~/.ssh/known_hosts
-#     - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
-#     - echo "LFTP fix trust host"
-#     - mkdir ~/.lftp
-#     - echo "set ssl:verify-certificate no" >> ~/.lftp/rc
-#   script:
-#     - echo "update docker image"
-#     - sshpass -p $PASSWORD ssh $USER@$SERVER docker pull registry.gitlab.com/christiancapp/quickapptemplate:latest
-#     - echo "create gitlab temp directory..."
-#     - echo "copy docker-compose files into gitlab temp directory..."
-#     - >-
-#       lftp -e "set ftp:ssl-protect-data true ;
-#       rmdir /temp-gitlab/quickapptemplate ;
-#       mkdir /temp-gitlab/quickapptemplate ;
-#       put -O /temp-gitlab/quickapptemplate ${CI_PROJECT_DIR}/docker/docker-compose.prod.yml ;
-#       exit"
-#       -u $USER,$PASSWORD sftp://$SERVER
-#     - echo "update docker container"
-#     - sshpass -p $PASSWORD ssh $USER@$SERVER docker-compose --file /temp-gitlab/quickapptemplate/docker-compose.prod.yml --project-name quickapp-prod up -d
-#     - echo "clean temp directory"
-#     - sshpass -p $PASSWORD ssh $USER@$SERVER rm -R /temp-gitlab/quickapptemplate
-#     - echo "info container"
-#     - sshpass -p $PASSWORD ssh $USER@$SERVER docker inspect quickapp-api
+deploy:
+  stage: deploy
+  image: debian
+  variables:
+    SERVER: "$DEV_SERVER"
+    USER: "$DEV_USER"
+    PASSWORD: "$DEV_PASSWORD"
+    TEMP_FOLDER: "/temp-gitlab"
+  before_script:
+    - echo "install utils"
+    - apt-get update -qy
+    - apt-get install -y lftp sshpass openssh-client
+    - echo "SSH add trust host"
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - ssh-keyscan -H $SERVER >> ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
+    - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
+    - echo "LFTP fix trust host"
+    - mkdir ~/.lftp
+    - echo "set ssl:verify-certificate no" >> ~/.lftp/rc
+  script:
+    - echo "update docker image"
+    - sshpass -p $PASSWORD ssh $USER@$SERVER docker pull ${CI_REGISTRY_IMAGE}/vvvvid-downloader-api:latest
+    - sshpass -p $PASSWORD ssh $USER@$SERVER docker pull "${CI_REGISTRY_IMAGE}/angular-client-site:latest
+    - echo "create gitlab temp directory..."
+    - echo "copy docker-compose files into gitlab temp directory..."
+    - >-
+      lftp -e "set ftp:ssl-protect-data true ;
+      rmdir $TEMP_FOLDER/${CI_PROJECT_NAME} ;
+      mkdir $TEMP_FOLDER/${CI_PROJECT_NAME} ;
+      put -O $TEMP_FOLDER/${CI_PROJECT_NAME} ${CI_PROJECT_DIR}/docker/docker-compose.prod.yml ;
+      exit"
+      -u $USER,$PASSWORD sftp://$SERVER
+    - echo "update docker container"
+    - sshpass -p $PASSWORD ssh $USER@$SERVER docker-compose --file $TEMP_FOLDER/${CI_PROJECT_NAME}/docker-compose.prod.yml --project-name ${CI_PROJECT_NAME}-prod up -d
+    - echo "clean temp directory"
+    - sshpass -p $PASSWORD ssh $USER@$SERVER rm -R $TEMP_FOLDER/${CI_PROJECT_NAME}
+    - echo "info container"
+    - sshpass -p $PASSWORD ssh $USER@$SERVER docker inspect angular-client-site
+    - sshpass -p $PASSWORD ssh $USER@$SERVER docker inspect VVVVID-Downloader.WebApi
 #   rules:
 #     - if: $CI_COMMIT_TAG =~ /v-/
