@@ -3,7 +3,24 @@ stages:
 #   - deploy
 
 # https://docs.gitlab.com/ee/ci/docker/using_kaniko.html
-build:
+build-angular-client:
+  stage: build
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
+  script:
+    - mkdir -p /kaniko/.docker
+    - echo "{\"auths\":{\"${CI_REGISTRY}\":{\"auth\":\"$(printf "%s:%s" "${CI_REGISTRY_USER}" "${CI_REGISTRY_PASSWORD}" | base64 | tr -d '\n')\"}}}" > /kaniko/.docker/config.json
+    - >-
+      /kaniko/executor
+      --context "${CI_PROJECT_DIR}"
+      --dockerfile "${CI_PROJECT_DIR}/docker/site.dockerfile"
+      --destination "${CI_REGISTRY_IMAGE}-angular-client-site"
+    #   --destination "${CI_REGISTRY_IMAGE}-angular-client-site:${CI_COMMIT_TAG}"
+#   rules:
+#     - if: $CI_COMMIT_TAG =~ /v-/
+
+build-net-core:
   stage: build
   image:
     name: gcr.io/kaniko-project/executor:debug
@@ -15,7 +32,8 @@ build:
       /kaniko/executor
       --context "${CI_PROJECT_DIR}"
       --dockerfile "${CI_PROJECT_DIR}/docker/api.dockerfile"
-      --destination "${CI_REGISTRY_IMAGE}-angular-client:${CI_COMMIT_TAG}"
+      --destination "${CI_REGISTRY_IMAGE}-vvvvid-downloader-api"
+    #   --destination "${CI_REGISTRY_IMAGE}-vvvvid-downloader-api:${CI_COMMIT_TAG}"
 #   rules:
 #     - if: $CI_COMMIT_TAG =~ /v-/
 
