@@ -66,11 +66,11 @@ deploy:
       lftp -e "set ftp:ssl-protect-data true ;
       rmdir $TEMP_FOLDER/${CI_PROJECT_NAME} ;
       mkdir $TEMP_FOLDER/${CI_PROJECT_NAME} ;
-      put -O $TEMP_FOLDER/${CI_PROJECT_NAME} ${CI_PROJECT_DIR}/docker/docker-compose.prod.yml ;
+      put -O $TEMP_FOLDER/${CI_PROJECT_NAME} ${CI_PROJECT_DIR}/docker/docker-compose.cicd.yml ;
       exit"
       -u $USER,$PASSWORD sftp://$SERVER
     - echo "update docker container"
-    - sshpass -p $PASSWORD ssh $USER@$SERVER docker-compose --file $TEMP_FOLDER/${CI_PROJECT_NAME}/docker-compose.prod.yml --project-name ${CI_PROJECT_NAME}-prod up -d
+    - sshpass -p $PASSWORD ssh $USER@$SERVER docker-compose --file $TEMP_FOLDER/${CI_PROJECT_NAME}/docker-compose.cicd.yml --project-name ${CI_PROJECT_NAME}-prod up -d
     - echo "clean temp directory"
     - sshpass -p $PASSWORD ssh $USER@$SERVER rm -R $TEMP_FOLDER/${CI_PROJECT_NAME}
     - echo "info container"
